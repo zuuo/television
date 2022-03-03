@@ -30,8 +30,6 @@ export default {
 
 .main.usePx {
   width: 100%;
-  box-sizing: border-box;
-  padding: 0 50px;
   height: calc(100% - 80px - 120px);
 }
 </style>

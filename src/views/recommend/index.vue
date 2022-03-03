@@ -1,76 +1,70 @@
 <template>
-  <div class="full">
+  <div class="wrap" ref="wrapper">
     <div class="row" v-for="(row, rowIndex) in rowItems" :key="rowIndex">
-      <div
-        class="item"
-        :class="item.isFocus ? 'focus' : ''"
-        v-for="(item, itemIndex) in row.items"
-        :key="itemIndex"
-        :ref="'item-' + rowIndex + '-' + itemIndex"
-      ></div>
+      <template v-for="(item, itemIndex) in row.items">
+        <div
+          class="item"
+          :class="
+            (item.isFocus ? ' focus' : '') +
+            (isShake(rowIndex, itemIndex) ? ' shake' : '')
+          "
+          :key="itemIndex"
+          :ref="'item-' + rowIndex + '-' + itemIndex"
+        ></div>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
 import keyboardControl from "@/utils/keyboardControl.js";
+import recommendData from "@/assets/data/recommend1.json";
 export default {
   name: `recommend`,
   mixins: [keyboardControl],
   data() {
     return {
-      rowItems: [
-        {
-          items: [{ isFocus: false }, { isFocus: false }],
-        },
-        {
-          items: [{ isFocus: false }, { isFocus: false }, { isFocus: false }],
-        },
-        {
-          items: [
-            { isFocus: false },
-            { isFocus: false },
-            { isFocus: false },
-            { isFocus: false },
-          ],
-        },
-        {
-          items: [{ isFocus: false }, { isFocus: false }],
-        },
-        {
-          items: [{ isFocus: false }, { isFocus: false }, { isFocus: false }],
-        },
-        {
-          items: [
-            { isFocus: false },
-            { isFocus: false },
-            { isFocus: false },
-            { isFocus: false },
-            { isFocus: false },
-            { isFocus: false },
-          ],
-        },
-        {
-          items: [{ isFocus: false }, { isFocus: false }],
-        },
-      ],
+      partName: "main",
+      rowItems: recommendData,
       curItemCoord: {
-        row: 0,
-        item: 0,
+        row: undefined,
+        item: undefined,
       },
       curItem: undefined,
       lastItemCoord: {
-        row: 0,
-        item: 0,
+        row: undefined,
+        item: undefined,
       },
       lastItem: undefined,
+      shakeItemCoord: {
+        row: undefined,
+        item: undefined,
+      },
     };
+  },
+  computed: {
+    wrapper() {
+      return this.$refs.wrapper;
+    },
+    cursorInPart() {
+      return this.$store.state.cursor.part == this.partName;
+    },
   },
   watch: {
     curItemCoord: {
       deep: true,
       immediate: true,
       handler(newCoord) {
+        if (!this.cursorInPart) {
+          return;
+        }
+        if (!newCoord.row) {
+          newCoord.row = 0
+        }
+        if (!newCoord.item) {
+          newCoord.item = 0
+        }
+
         let nextItem = this.rowItems[newCoord.row].items[newCoord.item];
         if (this.curItem) {
           this.curItem.isFocus = false;
@@ -92,6 +86,19 @@ export default {
 
         this.curItem.isFocus = true;
       },
+    },
+    curItem() {
+      let itemRefString = `item-${this.curItemCoord.row}-${this.curItemCoord.item}`;
+      let curItemDom = this.$refs[itemRefString][0];
+      // console.log(curItemDom);
+      // let rect = curItemDom.getBoundingClientRect();
+      // let wrapperRect = this.wrapper.getBoundingClientRect()
+      // let top = rect.top - wrapperRect.top;
+      // console.log(top);
+      // this.wrapper.scrollTop(top)
+      curItemDom.scrollIntoView({
+        block: "center",
+      });
     },
   },
   mounted() {},
@@ -145,33 +152,34 @@ export default {
         );
       }
     },
-    itemShake() {
-      console.log("shake");
-    },
-    skip(originSize, targetSize, originIndex) {
-      let targetIndex = 0;
-
-      targetIndex = (targetSize / originSize) * originIndex;
-      // if (originSize <= targetSize) {
-      //   targetIndex = Math.ceil(targetIndex);
-      // } else {
-      //   targetIndex = Math.floor(targetIndex);
-      // }
-      console.log(targetIndex);
-      targetIndex = Math.round(targetIndex);
-      if (targetIndex < 0) {
-        targetIndex = 0
-      } else if (targetIndex > targetSize - 1) {
-        targetIndex = targetSize - 1
+    keyEnter() {
+      if (!this.cursorInPart) {
+        return;
       }
-
-      return targetIndex;
+    },
+    itemShake() {
+      this.shakeItemCoord = {
+        row: this.curItemCoord.row,
+        item: this.curItemCoord.item,
+      };
+    },
+    isShake(row, item) {
+      return (
+        row === this.shakeItemCoord.row && item === this.shakeItemCoord.item
+      );
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.wrap {
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  padding: 40px 50px;
+  box-sizing: border-box;
+}
 .row {
   width: 100%;
   display: flex;
@@ -184,15 +192,17 @@ export default {
 
   .item {
     flex: 1;
-    height: 100px;
+    height: 300px;
     border: 1px solid #fff;
     margin-left: 20px;
     border-radius: 5px;
+    transition: 200ms;
 
     &.focus {
-      transform: scale(1.25);
+      transform: scale(1.05);
       box-shadow: 0 0 2px 5px #fff;
       word-break: break-all;
+      transition: 500ms;
     }
 
     &:first-child {

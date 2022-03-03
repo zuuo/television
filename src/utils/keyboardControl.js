@@ -1,4 +1,7 @@
 export default {
+    data() {
+        return {}
+    },
     mounted() {
         document.onkeydown = (e) => {
             // window.event.preventDefault()
@@ -45,6 +48,25 @@ export default {
         },
         keyBack() {
             console.log('keyBack')
+        },
+        skip(originSize, targetSize, originIndex) {
+            let targetIndex = 0;
+            let originSizeMid = originSize / 2;
+
+            targetIndex = (targetSize / originSize) * originIndex;
+            if (originSizeMid <= originIndex) {
+                targetIndex = Math.ceil(targetIndex);
+            } else {
+                targetIndex = Math.floor(targetIndex);
+            }
+
+            if (targetIndex < 0) {
+                targetIndex = 0;
+            } else if (targetIndex > targetSize - 1) {
+                targetIndex = targetSize - 1;
+            }
+
+            return targetIndex;
         },
     },
 }
