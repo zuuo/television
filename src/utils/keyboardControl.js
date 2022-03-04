@@ -3,7 +3,10 @@ export default {
         return {}
     },
     mounted() {
-        document.onkeydown = (e) => {
+        document.addEventListener("keydown", this.onkeydown)
+    },
+    methods: {
+        onkeydown(e) {
             // window.event.preventDefault()
             switch (e.keyCode) {
                 case 37:
@@ -28,9 +31,7 @@ export default {
                 default:
                     break;
             }
-        }
-    },
-    methods: {
+        },
         keyLeft() {
             console.log('keyLeft')
         },

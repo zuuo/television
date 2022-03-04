@@ -1,9 +1,10 @@
 const cursor = {
     state: {
-        part: 'main'
+        part: ''
     },
     mutations: {
         SET_PART: (state, part) => {
+            // console.log(part);
             state.part = part
         },
     },

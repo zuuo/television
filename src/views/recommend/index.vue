@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap" ref="wrapper">
+  <div class="wrap">
     <div class="row" v-for="(row, rowIndex) in rowItems" :key="rowIndex">
       <template v-for="(item, itemIndex) in row.items">
         <div
@@ -43,14 +43,17 @@ export default {
     };
   },
   computed: {
-    wrapper() {
-      return this.$refs.wrapper;
-    },
     cursorInPart() {
       return this.$store.state.cursor.part == this.partName;
     },
   },
   watch: {
+    cursorInPart(boo) {
+      console.log(boo);
+      if (!boo && this.curItem) {
+        this.$set(this.curItem, "isFocus", true);
+      }
+    },
     curItemCoord: {
       deep: true,
       immediate: true,
@@ -59,15 +62,15 @@ export default {
           return;
         }
         if (!newCoord.row) {
-          newCoord.row = 0
+          newCoord.row = 0;
         }
         if (!newCoord.item) {
-          newCoord.item = 0
+          newCoord.item = 0;
         }
 
         let nextItem = this.rowItems[newCoord.row].items[newCoord.item];
         if (this.curItem) {
-          this.curItem.isFocus = false;
+          this.$set(this.curItem, "isFocus", false);
         }
         if (nextItem) {
           this.lastItemCoord = {
@@ -84,26 +87,31 @@ export default {
           this.curItem = this.lastItem;
         }
 
-        this.curItem.isFocus = true;
+        this.$set(this.curItem, "isFocus", true);
       },
     },
     curItem() {
       let itemRefString = `item-${this.curItemCoord.row}-${this.curItemCoord.item}`;
       let curItemDom = this.$refs[itemRefString][0];
-      // console.log(curItemDom);
-      // let rect = curItemDom.getBoundingClientRect();
-      // let wrapperRect = this.wrapper.getBoundingClientRect()
-      // let top = rect.top - wrapperRect.top;
-      // console.log(top);
-      // this.wrapper.scrollTop(top)
+
       curItemDom.scrollIntoView({
         block: "center",
       });
     },
   },
+  created() {
+    this.rowItems.forEach((row) => {
+      row.items &&
+        row.items.forEach((item) => {
+          this.$set(item, "isFocus", false);
+        });
+    });
+  },
   mounted() {},
   methods: {
     keyLeft() {
+      if (!this.cursorInPart) return;
+
       if (this.curItemCoord.item <= 0) {
         this.itemShake();
       } else {
@@ -111,6 +119,8 @@ export default {
       }
     },
     keyRight() {
+      if (!this.cursorInPart) return;
+
       let row = this.rowItems[this.curItemCoord.row];
       let itemNum = row.items.length;
 
@@ -121,6 +131,8 @@ export default {
       }
     },
     keyUp() {
+      if (!this.cursorInPart) return;
+
       if (this.curItemCoord.row <= 0) {
         this.itemShake();
       } else {
@@ -137,6 +149,8 @@ export default {
       }
     },
     keyDown() {
+      if (!this.cursorInPart) return;
+
       if (this.curItemCoord.row >= this.rowItems.length - 1) {
         this.itemShake();
       } else {
@@ -153,6 +167,8 @@ export default {
       }
     },
     keyEnter() {
+      if (!this.cursorInPart) return;
+
       if (!this.cursorInPart) {
         return;
       }

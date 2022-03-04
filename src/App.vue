@@ -1,35 +1,42 @@
 <template>
   <div id="app">
     <div class="headBar usePx"></div>
-    <div class="topMenus usePx"></div>
+    <topMenu class="topMenu usePx"></topMenu>
     <div class="main usePx">
       <router-view />
     </div>
   </div>
 </template>
 <script>
+import topMenu from "@/components/topMenu.vue";
 export default {
-  methods: {
-    
+  components: {
+    topMenu,
   },
+  created() {
+    this.$store.commit("SET_PART", "main")
+  },
+  methods: {},
 };
 </script>
 <style lang="scss">
 @import "@/assets/style/app.scss";
+$headHeight: 50px;
+$menuHeight: 50px;
 .headBar.usePx {
   width: 100%;
-  height: 80px;
+  height: $headHeight;
   background-color: rgba(236, 185, 193, 0.1);
 }
 
-.topMenus.usePx {
+.topMenu.usePx {
   width: 100%;
-  height: 120px;
-  background-color: rgba(243, 243, 140, 0.1);
+  height: $headHeight;
+  background-color: rgb(69, 110, 223);
 }
 
 .main.usePx {
   width: 100%;
-  height: calc(100% - 80px - 120px);
+  height: calc(100% - $headHeight - $headHeight);
 }
 </style>

@@ -1,88 +1,51 @@
 [{
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {}
         ]
     },
     {
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {},
+            {}
         ]
     },
     {
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {},
+            {},
+            {}
         ]
     },
     {
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {}
         ]
     },
     {
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {},
+            {}
         ]
     },
     {
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {}
         ]
     },
     {
-        "items": [{
-                "isFocus": false
-            },
-            {
-                "isFocus": false
-            }
+        "items": [
+            {},
+            {}
         ]
     }
 ]
