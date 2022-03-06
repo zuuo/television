@@ -14,7 +14,7 @@ export default {
     topMenu,
   },
   created() {
-    this.$store.commit("SET_PART", "main")
+    this.$store.commit("SET_PART", "menu")
   },
   methods: {},
 };
@@ -32,7 +32,6 @@ $menuHeight: 50px;
 .topMenu.usePx {
   width: 100%;
   height: $headHeight;
-  background-color: rgb(69, 110, 223);
 }
 
 .main.usePx {

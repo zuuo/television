@@ -1,27 +1,44 @@
 <template>
-  <div class="wrap">
-    <div class="row" v-for="(row, rowIndex) in rowItems" :key="rowIndex">
-      <template v-for="(item, itemIndex) in row.items">
-        <div
-          class="item"
-          :class="
-            (item.isFocus ? ' focus' : '') +
-            (isShake(rowIndex, itemIndex) ? ' shake' : '')
-          "
-          :key="itemIndex"
-          :ref="'item-' + rowIndex + '-' + itemIndex"
-        ></div>
-      </template>
-    </div>
+  <div class="wrap usePX">
+    <template v-for="(row, rowIndex) in rowItems">
+      <carousel
+        v-if="row.type == 'carousel'"
+        :curItemCoord.sync="curItemCoord"
+        :rowData="row"
+        :key="rowIndex"
+      />
+      <div v-else class="row" :key="rowIndex">
+        <template v-for="(item, itemIndex) in row.items">
+          <item
+            :rowIndex="rowIndex"
+            :itemIndex="itemIndex"
+            :shakeItemCoord="shakeItemCoord"
+            :itemData="item"
+            :key="itemIndex"
+            :ref="'item-' + rowIndex + '-' + itemIndex"
+          />
+        </template>
+      </div>
+    </template>
+
+    <detailPage v-if="showDetail" :showDetail.sync="showDetail" />
   </div>
 </template>
 
 <script>
 import keyboardControl from "@/utils/keyboardControl.js";
 import recommendData from "@/assets/data/recommend1.json";
+import detailPage from "@/views/detail/index.vue";
+import carousel from "@/components/carousel.vue";
+import item from "@/components/item.vue";
 export default {
   name: `recommend`,
   mixins: [keyboardControl],
+  components: {
+    detailPage,
+    carousel,
+    item,
+  },
   data() {
     return {
       partName: "main",
@@ -29,28 +46,41 @@ export default {
       curItemCoord: {
         row: undefined,
         item: undefined,
+        direction: undefined
       },
       curItem: undefined,
       lastItemCoord: {
         row: undefined,
         item: undefined,
+        direction: undefined
       },
       lastItem: undefined,
       shakeItemCoord: {
         row: undefined,
         item: undefined,
+        direction: undefined
       },
+      showDetail: false,
     };
   },
   computed: {
     cursorInPart() {
       return this.$store.state.cursor.part == this.partName;
     },
+    isFreeze() {
+      return this.$store.state.cursor.freezeItem;
+    },
   },
   watch: {
     cursorInPart(boo) {
-      console.log(boo);
       if (!boo && this.curItem) {
+        this.$set(this.curItem, "isFocus", false);
+      } else if (boo && !this.curItem) {
+        this.curItemCoord = {
+          row: 0,
+          item: 0,
+        };
+      } else {
         this.$set(this.curItem, "isFocus", true);
       }
     },
@@ -76,6 +106,7 @@ export default {
           this.lastItemCoord = {
             row: newCoord.row,
             item: newCoord.item,
+            direction: newCoord.direction,
           };
           this.lastItem = this.curItem;
           this.curItem = nextItem;
@@ -92,7 +123,18 @@ export default {
     },
     curItem() {
       let itemRefString = `item-${this.curItemCoord.row}-${this.curItemCoord.item}`;
-      let curItemDom = this.$refs[itemRefString][0];
+      let curItemDom = this.$refs[itemRefString];
+      if(!curItemDom) {
+        return
+      }
+
+      if (Array.isArray(curItemDom)) {
+        curItemDom = curItemDom[0];
+      }
+
+      if (curItemDom.$el) {
+        curItemDom = curItemDom.$el;
+      }
 
       curItemDom.scrollIntoView({
         block: "center",
@@ -116,6 +158,7 @@ export default {
         this.itemShake();
       } else {
         this.curItemCoord.item--;
+        this.curItemCoord.direction = "left";
       }
     },
     keyRight() {
@@ -128,19 +171,25 @@ export default {
         this.itemShake();
       } else {
         this.curItemCoord.item++;
+        this.curItemCoord.direction = "right";
       }
     },
     keyUp() {
       if (!this.cursorInPart) return;
 
       if (this.curItemCoord.row <= 0) {
-        this.itemShake();
+        // this.$set(this.curItem, "isFocus", false);
+        this.curItem.isFocus = false;
+        this.$store.commit("SET_PART", "menu");
+        this.$store.commit("FREEZE_ITEM", true);
+        // this.itemShake();
       } else {
         let row = this.rowItems[this.curItemCoord.row];
         let rowItemNum = row.items.length;
         let nextRow = this.rowItems[this.curItemCoord.row - 1];
         let nextRowItemNum = nextRow.items.length;
         this.curItemCoord.row--;
+        this.curItemCoord.direction = "up";
         this.curItemCoord.item = this.skip(
           rowItemNum,
           nextRowItemNum,
@@ -150,6 +199,10 @@ export default {
     },
     keyDown() {
       if (!this.cursorInPart) return;
+      if (this.isFreeze) {
+        this.$store.commit("FREEZE_ITEM", false);
+        return;
+      }
 
       if (this.curItemCoord.row >= this.rowItems.length - 1) {
         this.itemShake();
@@ -158,6 +211,7 @@ export default {
         let rowItemNum = row.items.length;
         let nextRow = this.rowItems[this.curItemCoord.row + 1];
         let nextRowItemNum = nextRow.items.length;
+        this.curItemCoord.direction = "down";
         this.curItemCoord.row++;
         this.curItemCoord.item = this.skip(
           rowItemNum,
@@ -169,9 +223,8 @@ export default {
     keyEnter() {
       if (!this.cursorInPart) return;
 
-      if (!this.cursorInPart) {
-        return;
-      }
+      this.$store.commit("SET_PART", "detail");
+      this.showDetail = true;
     },
     itemShake() {
       this.shakeItemCoord = {
@@ -179,17 +232,12 @@ export default {
         item: this.curItemCoord.item,
       };
     },
-    isShake(row, item) {
-      return (
-        row === this.shakeItemCoord.row && item === this.shakeItemCoord.item
-      );
-    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.wrap {
+.wrap.usePX {
   overflow: auto;
   width: 100%;
   height: 100%;
@@ -204,26 +252,6 @@ export default {
 
   & + .row {
     margin-top: 20px;
-  }
-
-  .item {
-    flex: 1;
-    height: 300px;
-    border: 1px solid #fff;
-    margin-left: 20px;
-    border-radius: 5px;
-    transition: 200ms;
-
-    &.focus {
-      transform: scale(1.05);
-      box-shadow: 0 0 2px 5px #fff;
-      word-break: break-all;
-      transition: 500ms;
-    }
-
-    &:first-child {
-      margin-left: 0;
-    }
   }
 }
 </style>

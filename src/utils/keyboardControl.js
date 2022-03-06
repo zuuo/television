@@ -7,7 +7,7 @@ export default {
     },
     methods: {
         onkeydown(e) {
-            // window.event.preventDefault()
+            window.event.preventDefault()
             switch (e.keyCode) {
                 case 37:
                     this.keyLeft()
