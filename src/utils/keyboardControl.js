@@ -7,7 +7,8 @@ export default {
     },
     methods: {
         onkeydown(e) {
-            window.event.preventDefault()
+            // console.log(e);
+            // window.event.preventDefault()
             switch (e.keyCode) {
                 case 37:
                     this.keyLeft()
@@ -27,7 +28,9 @@ export default {
                 case 27:
                     this.keyBack()
                     break;
-
+                case 116:
+                    this.$router.reload();
+                    break;
                 default:
                     break;
             }

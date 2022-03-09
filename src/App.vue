@@ -3,7 +3,7 @@
     <div class="headBar usePx"></div>
     <topMenu class="topMenu usePx"></topMenu>
     <div class="main usePx">
-      <router-view />
+      <router-view :key="$route.path" />
     </div>
   </div>
 </template>

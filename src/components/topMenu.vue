@@ -82,6 +82,8 @@ export default {
       curItemDom.scrollIntoView({
         block: "center",
       });
+
+      this.$router.push(this.curItem.url)
     },
   },
   create() {

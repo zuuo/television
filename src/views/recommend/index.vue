@@ -27,10 +27,13 @@
 
 <script>
 import keyboardControl from "@/utils/keyboardControl.js";
-import recommendData from "@/assets/data/recommend1.json";
 import detailPage from "@/views/detail/index.vue";
 import carousel from "@/components/carousel.vue";
 import item from "@/components/item.vue";
+
+import recommendData from "@/assets/data/recommend1.json";
+import recommendData2 from "@/assets/data/recommend2.json";
+
 export default {
   name: `recommend`,
   mixins: [keyboardControl],
@@ -42,7 +45,7 @@ export default {
   data() {
     return {
       partName: "main",
-      rowItems: recommendData,
+      rowItems: this.$route.path == "/" ? recommendData : recommendData2,
       curItemCoord: {
         row: undefined,
         item: undefined,
@@ -149,7 +152,9 @@ export default {
         });
     });
   },
-  mounted() {},
+  mounted() {
+    console.log(this.$route);
+  },
   methods: {
     keyLeft() {
       if (!this.cursorInPart) return;
